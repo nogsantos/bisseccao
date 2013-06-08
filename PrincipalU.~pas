@@ -1,0 +1,232 @@
+unit PrincipalU;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, ExtCtrls, TFlatPanelUnit, TFlatAnimWndUnit, TFlatGroupBoxUnit,
+  Effects, ComCtrls, StdCtrls, OfficeControls, TFlatEditUnit,
+  TFlatSpinEditUnit, Grids, RXCtrls, TFlatSpeedButtonUnit,
+  TFlatTabControlUnit, TFlatListBoxUnit, CheckLst, RxRichEd;
+
+type
+  TFPrincipal = class(TForm)
+    FlatPanel1: TFlatPanel;
+    FormAlphaBlended1: TFormAlphaBlended;
+    StatusBar1: TStatusBar;
+    FlatPanel2: TFlatPanel;
+    Panel1: TPanel;
+    RxLabel1: TRxLabel;
+    RxLabel2: TRxLabel;
+    RxLabel3: TRxLabel;
+    RxLabel4: TRxLabel;
+    RxLabel5: TRxLabel;
+    Panel2: TPanel;
+    FlatGroupBox1: TFlatGroupBox;
+    ksoOfficeLabel1: TksoOfficeLabel;
+    ksoOfficeLabel2: TksoOfficeLabel;
+    spIntervaloAOLD: TFlatSpinEditInteger;
+    spIntervaloBOLS: TFlatSpinEditInteger;
+    Panel3: TPanel;
+    Panel4: TPanel;
+    FlatGroupBox2: TFlatGroupBox;
+    spPrecisao: TFlatSpinEditFloat;
+    Panel5: TPanel;
+    Shape2: TShape;
+    Shape3: TShape;
+    Label2: TLabel;
+    Shape1: TShape;
+    ksoOfficeLabel3: TksoOfficeLabel;
+    ksoOfficeLabel4: TksoOfficeLabel;
+    Shape4: TShape;
+    ksoOfficeLabel5: TksoOfficeLabel;
+    ksoOfficeLabel6: TksoOfficeLabel;
+    ksoOfficeLabel7: TksoOfficeLabel;
+    ksoOfficeLabel8: TksoOfficeLabel;
+    Shape5: TShape;
+    Shape6: TShape;
+    Shape7: TShape;
+    lbA: TLabel;
+    lbB: TLabel;
+    lbFa: TLabel;
+    lbFx: TLabel;
+    lbAMenosB: TLabel;
+    Panel6: TPanel;
+    FlatGroupBox3: TFlatGroupBox;
+    btX: TFlatSpeedButton;
+    Shape8: TShape;
+    ksoOfficeLabel9: TksoOfficeLabel;
+    lbX: TLabel;
+    btCalcFa: TFlatSpeedButton;
+    spIntervaloA: TFlatSpinEditFloat;
+    spIntervaloB: TFlatSpinEditFloat;
+    Info: TPageControl;
+    TabSheet1: TTabSheet;
+    TabSheet2: TTabSheet;
+    ksoOfficeListBox1: TksoOfficeListBox;
+    lbIteracao: TFlatEdit;
+    lbInfo: TLabel;
+    procedure spIntervaloAOLDExit(Sender: TObject);
+    procedure btXClick(Sender: TObject);
+    procedure btCalcFaClick(Sender: TObject);
+    procedure spIntervaloBExit(Sender: TObject);
+    procedure FormShow(Sender: TObject);
+  private
+    { Private declarations }
+    K, M, X, fa, fb, fx, BmenosA : Double;
+    pos, vez : integer;
+  public
+    { Public declarations }
+  end;
+
+var
+  FPrincipal: TFPrincipal;
+
+implementation
+
+{$R *.dfm}
+
+procedure TFPrincipal.spIntervaloAOLDExit(Sender: TObject);
+begin
+  lbA.Caption := FloatToStr(spIntervaloA.Value);
+end;
+
+procedure TFPrincipal.btXClick(Sender: TObject);
+var a, b, res, valida : Double;
+begin
+  try
+    //Valida
+    a := spIntervaloA.Value;
+    b := spIntervaloB.Value;
+    fa := (a*a*a) - 9*a + 3;
+    fb := (b*b*b) - 9*b + 3;
+    valida := fa*fb;
+    if valida < 0
+      then begin
+        spPrecisao.Enabled := false;
+        lbInfo.Caption := #13+'Os valores dos intervalos A e B foram validados pelo algoritmo 1.';
+        // teste para ver se  A é maior que B
+        if spIntervaloA.Value > spIntervaloB.Value
+          then begin
+            MessageBox(0, 'Intervalo inicial A maior que B', 'Aviso', MB_ICONINFORMATION or MB_OK);
+            spIntervaloA.SetFocus;
+            abort;
+          end;
+
+        //passo 2
+        a := spIntervaloA.Value;
+        b := spIntervaloB.Value;
+        res := b - a;
+        if res < spPrecisao.Value
+          then begin
+            MessageBox(0, 'Escolha para (x) qualquer x pertencente [a,b].', 'Fim', MB_ICONINFORMATION or MB_OK);
+            abort;
+          end
+        else // se passo 2 falso
+          begin
+            //passo 3
+            K := 1;
+            //passo 4
+            M := fa;
+            //passo 5
+            x := (a+b)/2;
+            {**********************  CALCULAR F(x) ****************************************}
+            fx := 0;
+            fx := (x*x*x)-9*x+3;
+            lbFx.Caption := FloatToStr(fx);
+           {********************** FIM CALCULO F(x) **************************************}
+            //passo 6 se Mf(x) maior que 0, faça a := x e vai para o passo 8
+            if fx > 0
+              then begin
+                a := x;
+                //passo 8
+                if (b-a) < spPrecisao.Value
+                  then MessageBox(0, 'Escolha para (x) qualquer x pertencente [a,b].', 'Fim', MB_ICONINFORMATION or MB_OK);
+                //passo 7
+                b := x;
+              end
+            else
+              begin
+                //passo 9
+                K := K + 1;
+                //passo 5
+                x := (a+b)/2;
+              end;
+          end;
+          lbX.Caption := FloatToStr(X);
+
+        {**********************  CALCULAR F(a) ****************************************}
+        fa := 0;
+        a := spIntervaloA.Value;
+        fa := (a * a * a) - 9 * a + 3;
+        lbFa.Caption := FloatToStr(fa);
+        {**********************  FIM CALCULO F(a) *************************************}
+
+        {**********************  CALCULAR b - a ***************************************}
+        BmenosA := 0;
+        BmenosA := (b - a) / 2;
+        lbAMenosB.Caption := FloatToStr(BmenosA);
+        if BmenosA < spPrecisao.Value
+          then begin
+            MessageBox(0, 'Fim do Exercício.', 'Fim', MB_ICONINFORMATION or MB_OK);
+            lbInfo.Caption := 'Então (x) = '+FloatToStr(x)+' em '+lbIteracao.Text+'iterações.'+#13+
+                              'Observe que neste exemplo escolhemos (x) = (a + b) / 2.';
+          end;
+        {********************** FIM CALCULO F(x) **************************************}
+        if vez = 1
+          then begin
+            lbIteracao.Text := '1';
+            vez := 0;
+          end
+        else
+          begin
+            pos := pos + 1;
+            lbIteracao.Text := IntToStr(pos);
+          end;
+      end
+    else
+      begin
+        MessageBox(0, 'f(a) e f(b) não satisfazem o algoritmo 1.', 'Erro de Função', MB_ICONSTOP or MB_OK);
+        lbInfo.Caption := #13+'Algoritmo 1'+#13+#13+
+                          'Seja f(x) contínua em [a, b] e tal que f(a)f(b) < 0 fazer passos seguintes.'+#13+
+                          'se não os valores informados não satisfazem o algoritmo 1.';
+
+      end;
+  Except
+    MessageBox(0, 'Pode ter ocorrido algum erro de digitação.'+#13+#10+'Verifique os valores do campos e tente novamente.', 'Erro', MB_ICONQUESTION or MB_OK);
+  end;
+end;
+
+procedure TFPrincipal.btCalcFaClick(Sender: TObject);
+begin
+  spPrecisao.Enabled := true;
+  spIntervaloAOLD.Value := 0;
+  spIntervaloBOLS.Value := 0;
+  spPrecisao.Value := 0;
+  spIntervaloA.Value := 0;
+  spIntervaloB.Value := 0;
+  lbIteracao.Text := '1';
+  Pos := 1;
+  vez := 1;
+  lbA.Caption := '';
+  lbB.Caption := '';
+  lbFa.Caption := '';
+  lbFx.Caption := '';
+  lbAMenosB.Caption := '';
+  lbX.Caption := '';
+  lbInfo.Caption := '';
+  spIntervaloA.SetFocus;
+end;
+
+procedure TFPrincipal.spIntervaloBExit(Sender: TObject);
+begin
+  lbB.Caption := FloatToStr(spIntervaloB.Value);
+end;
+
+procedure TFPrincipal.FormShow(Sender: TObject);
+begin
+  pos := 1;
+  vez := 1;
+end;
+
+end.
